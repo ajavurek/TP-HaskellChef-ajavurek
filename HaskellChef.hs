@@ -15,7 +15,7 @@ data Plato = UnPlato {
 type Truco = Plato -> Plato
 type Componente = (Ingrediente, Gramos)
 type Ingrediente = String
-type Gramos = Float
+type Gramos = Int
 
 -- PARTE A:
 
@@ -58,7 +58,7 @@ esProductoNoVegano :: Ingrediente -> Bool
 esProductoNoVegano ingrediente = ingrediente `elem` ["Carne", "Huevos", "Lácteos"]
 
 esSinTacc :: Plato -> Bool
-esSinTacc = not . elem "Harina" . ingredientesDeUnPlato
+esSinTacc = notElem "Harina" . ingredientesDeUnPlato
 
 noAptoHipertension :: Plato -> Bool
 noAptoHipertension = any esSalado . componentes
@@ -72,7 +72,7 @@ pepeRonccino :: Participante
 pepeRonccino = UnParticipante {
     nombre = "Pepe Ronccino",
     trucosDeCocina = [darSabor 2 5, duplicarPorcion, simplificar],
-    especialidad = platoDePepe 
+    especialidad = platoDePepe
 }
 
 platoDePepe :: Plato
@@ -96,10 +96,22 @@ aplicarTruco :: Plato -> Truco -> Plato
 aplicarTruco unPlato unTruco = unTruco unPlato
 
 participanteEstrella :: [Participante] -> Participante
-participanteEstrella [] = []
+participanteEstrella [] = error "Lista vacía"
 participanteEstrella [unP1] = unP1
 participanteEstrella (unP1:unP2:restoP)
-    | esMejorQue (cocinar unP1) (cocinar unP2) = participanteEstrella (unP1:restoP) 
+    | esMejorQue (cocinar unP1) (cocinar unP2) = participanteEstrella (unP1:restoP)
     | otherwise = participanteEstrella (unP2:restoP)
 
 -- PARTE D:
+
+armarComponente :: Int -> Componente
+armarComponente unNum = ("Ingrediente" ++ show unNum, unNum)
+
+ingredientesInf :: [Componente]
+ingredientesInf = map armarComponente [1..]
+
+platinium :: Plato
+platinium = UnPlato{
+    dificultad = 10,
+    componentes = ingredientesInf
+}
