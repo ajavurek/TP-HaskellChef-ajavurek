@@ -39,8 +39,11 @@ duplicarPeso (ing, gr) = (ing, gr *2)
 
 simplificar :: Truco
 simplificar unPlato
-    | esComplejo unPlato = modificarComponentes (filter tienePesoAceptable) (unPlato { dificultad = 5})
+    | esComplejo unPlato = modificarComponentes (filter tienePesoAceptable) . modificarDificultad 5 $ unPlato
     | otherwise = unPlato
+
+modificarDificultad :: Float -> Plato -> Plato
+modificarDificultad nuevaDificultad unPlato = unPlato { dificultad = nuevaDificultad }
 
 tienePesoAceptable :: Componente -> Bool
 tienePesoAceptable = (>= 10) . snd
@@ -48,26 +51,25 @@ tienePesoAceptable = (>= 10) . snd
 esComplejo :: Plato -> Bool
 esComplejo unPlato = ((>5) . length . componentes) unPlato && ((>7) . dificultad) unPlato
 
-esVegano :: Plato -> Bool
-esVegano = not . any esProductoNoVegano . ingredientesDeUnPlato
+contiene :: [Ingrediente] -> Plato -> Bool
+contiene unosIngredientes unPlato = any (`elem` unosIngredientes) . ingredientesDeUnPlato $ unPlato
 
 ingredientesDeUnPlato :: Plato -> [Ingrediente]
 ingredientesDeUnPlato unPlato = map fst (componentes unPlato)
 
-esProductoNoVegano :: Ingrediente -> Bool
-esProductoNoVegano ingrediente = ingrediente `elem` ["Carne", "Huevos", "Lácteos"]
+esVegano :: Plato -> Bool
+esVegano = not . contiene ["Carne", "Pollo", "Pescado", "Mariscos"]
 
 esSinTacc :: Plato -> Bool
-esSinTacc = notElem "Harina" . ingredientesDeUnPlato
+esSinTacc = not . contiene ["Harina"]
 
 noAptoHipertension :: Plato -> Bool
-noAptoHipertension = any esSalado . componentes
+noAptoHipertension = any esSalado. componentes
 
 esSalado :: Componente -> Bool
 esSalado (ing, gr) = ing == "Sal" && gr > 2
 
 -- PARTE B:
-
 pepeRonccino :: Participante
 pepeRonccino = UnParticipante {
     nombre = "Pepe Ronccino",
@@ -96,11 +98,11 @@ aplicarTruco :: Plato -> Truco -> Plato
 aplicarTruco unPlato unTruco = unTruco unPlato
 
 participanteEstrella :: [Participante] -> Participante
-participanteEstrella [] = error "Lista vacía"
-participanteEstrella [unP1] = unP1
-participanteEstrella (unP1:unP2:restoP)
-    | esMejorQue (cocinar unP1) (cocinar unP2) = participanteEstrella (unP1:restoP)
-    | otherwise = participanteEstrella (unP2:restoP)
+participanteEstrella [] = error "Lista de Participantes vacía"
+participanteEstrella [unP] = unP
+participanteEstrella (unP:restoP)
+    | esMejorQue (cocinar unP) (cocinar (participanteEstrella restoP)) = unP
+    | otherwise = participanteEstrella restoP
 
 -- PARTE D:
 
