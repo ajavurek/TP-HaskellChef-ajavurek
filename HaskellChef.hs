@@ -58,7 +58,7 @@ ingredientesDeUnPlato :: Plato -> [Ingrediente]
 ingredientesDeUnPlato unPlato = map fst (componentes unPlato)
 
 esVegano :: Plato -> Bool
-esVegano = not . contiene ["Carne", "Pollo", "Pescado", "Mariscos"]
+esVegano = not . contiene ["Carne", "Huevos", "Lácteos"]
 
 esSinTacc :: Plato -> Bool
 esSinTacc = not . contiene ["Harina"]
